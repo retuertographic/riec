@@ -260,6 +260,7 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
   var state = { data:null, sel:"Güímar", q:"", comarca:"" };
   var $ = function(id){ return document.getElementById(id); };
   var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); };
+  var norm = function(s){ return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/\s+/g," ").trim(); };
   var fmt = function(d){ var p=d.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; };
 
   function model(){
@@ -298,10 +299,10 @@ footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padd
       '<div><b>'+comarcalesListas+'</b><span>comarcas con 3 redes municipales listas</span></div>';
     $("updated").textContent = "Datos actualizados el "+fmt(d.actualizado);
 
-    var q=state.q.trim().toLowerCase(), html="";
+    var q=norm(state.q), html="";
     d.comarcas.forEach(function(c){
       if (state.comarca && state.comarca!==c.id) return;
-      var munis=c.municipios.filter(function(m){ return !q || m.toLowerCase().indexOf(q)>-1; });
+      var munis=c.municipios.filter(function(m){ return !q || norm(m).indexOf(q)>-1; });
       if (!munis.length) return;
       var nRed=c.municipios.filter(function(m){return M[m].red;}).length, bar="";
       for (var i=0;i<NEEDED;i++) bar+='<span class="'+(i<nRed?"on":"")+'"></span>';
