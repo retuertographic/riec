@@ -1,0 +1,36 @@
+{
+  "nota": "DATOS DE EJEMPLO para el prototipo. Sustituir por las entidades reales validadas.",
+  "actualizado": "2026-11-01",
+  "comarcas": [
+    { "id": "sur-1", "nombre": "Sur 1", "municipios": ["Santiago del Teide", "Guía de Isora", "Adeje", "Arona", "San Miguel de Abona", "Vilaflor de Chasna", "Granadilla de Abona"] },
+    { "id": "sur-2", "nombre": "Sur 2", "municipios": ["Arico", "Fasnia", "Güímar", "Arafo", "Candelaria"] },
+    { "id": "metropolitana", "nombre": "Metropolitana", "municipios": ["El Rosario", "Santa Cruz de Tenerife", "San Cristóbal de La Laguna", "Tegueste"] },
+    { "id": "norte-2", "nombre": "Norte 2", "municipios": ["Tacoronte", "El Sauzal", "La Matanza de Acentejo", "La Victoria de Acentejo", "Santa Úrsula", "La Orotava", "Puerto de la Cruz", "Los Realejos"] },
+    { "id": "norte-1", "nombre": "Norte 1", "municipios": ["San Juan de la Rambla", "La Guancha", "Icod de los Vinos", "Garachico", "El Tanque", "Los Silos", "Buenavista del Norte"] }
+  ],
+  "entidades": [
+    { "id": "e01", "nombre": "El Puertito se Mueve", "municipio": "Güímar", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-10-20" },
+    { "id": "e02", "nombre": "Asociación cultural de ejemplo (Güímar)", "municipio": "Güímar", "ambito": "Cultural", "estado": "validada", "fecha": "2026-10-24" },
+    { "id": "e03", "nombre": "Entidad en revisión", "municipio": "Güímar", "ambito": "Juvenil", "estado": "revision", "fecha": "2026-10-30" },
+    { "id": "e04", "nombre": "Asociación vecinal de ejemplo A (Arafo)", "municipio": "Arafo", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-09-12" },
+    { "id": "e05", "nombre": "Club de mayores de ejemplo (Arafo)", "municipio": "Arafo", "ambito": "Mayores", "estado": "validada", "fecha": "2026-09-15" },
+    { "id": "e06", "nombre": "AMPA de ejemplo (Arafo)", "municipio": "Arafo", "ambito": "Educación", "estado": "validada", "fecha": "2026-09-20" },
+    { "id": "e07", "nombre": "Asociación vecinal de ejemplo (Candelaria)", "municipio": "Candelaria", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-10-02" },
+    { "id": "e08", "nombre": "Entidad en revisión", "municipio": "Candelaria", "ambito": "Deportivo", "estado": "revision", "fecha": "2026-10-28" },
+    { "id": "e09", "nombre": "Asociación sociocultural de ejemplo (Arico)", "municipio": "Arico", "ambito": "Sociocultural", "estado": "validada", "fecha": "2026-10-10" },
+    { "id": "e10", "nombre": "Asociación vecinal de ejemplo A (La Laguna)", "municipio": "San Cristóbal de La Laguna", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-08-30" },
+    { "id": "e11", "nombre": "Asociación vecinal de ejemplo B (La Laguna)", "municipio": "San Cristóbal de La Laguna", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-09-03" },
+    { "id": "e12", "nombre": "Colectivo juvenil de ejemplo (La Laguna)", "municipio": "San Cristóbal de La Laguna", "ambito": "Juvenil", "estado": "validada", "fecha": "2026-09-08" },
+    { "id": "e13", "nombre": "Asociación vecinal de ejemplo (Santa Cruz)", "municipio": "Santa Cruz de Tenerife", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-09-18" },
+    { "id": "e14", "nombre": "Asociación de ejemplo (Santa Cruz)", "municipio": "Santa Cruz de Tenerife", "ambito": "Discapacidad", "estado": "validada", "fecha": "2026-09-22" },
+    { "id": "e15", "nombre": "Entidad en revisión", "municipio": "Santa Cruz de Tenerife", "ambito": "Medio ambiente", "estado": "revision", "fecha": "2026-10-29" },
+    { "id": "e16", "nombre": "Asociación cultural de ejemplo (La Orotava)", "municipio": "La Orotava", "ambito": "Cultural", "estado": "validada", "fecha": "2026-10-05" },
+    { "id": "e17", "nombre": "Asociación vecinal de ejemplo (Arona)", "municipio": "Arona", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-10-14" },
+    { "id": "e18", "nombre": "Asociación de ejemplo (Icod de los Vinos)", "municipio": "Icod de los Vinos", "ambito": "Vecinal", "estado": "validada", "fecha": "2026-10-16" }
+  ],
+  "redesMunicipales": [
+    { "municipio": "Arafo", "constituida": "2026-10-01", "portavoces": true },
+    { "municipio": "San Cristóbal de La Laguna", "constituida": "2026-09-25", "portavoces": true }
+  ],
+  "redesComarcales": []
+}
