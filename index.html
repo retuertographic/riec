@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mapa de la RIEC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: cabecera con la regla del 3, comarcas como tarjetas de municipios con su barra de 3 plazas, ficha lateral, directorio y formulario de alta */
+:root{
+  --bg:#F2F4F1; --surface:#FFFFFF; --ink:#13302A; --muted:#55655F; --line:#D5DDD8;
+  --accent:#1E6B52; --accent-soft:#DCEDE5; --blue:#2453A0; --blue-soft:#E1E9F7;
+  --amber:#9A6200; --amber-soft:#F7EBD3; --empty:#E3E8E5;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1A17; --surface:#16241F; --ink:#E6EFEB; --muted:#9DB0A8; --line:#2A3B35;
+  --accent:#5CC39C; --accent-soft:#1D3A30; --blue:#8FB2EE; --blue-soft:#1C2A44;
+  --amber:#E7B45A; --amber-soft:#3A2C12; --empty:#24332E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1A17; --surface:#16241F; --ink:#E6EFEB; --muted:#9DB0A8; --line:#2A3B35;
+  --accent:#5CC39C; --accent-soft:#1D3A30; --blue:#8FB2EE; --blue-soft:#1C2A44;
+  --amber:#E7B45A; --amber-soft:#3A2C12; --empty:#24332E; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px))}
+.wrap{max-width:1180px;margin:0 auto;padding-block:28px 64px;display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.1}
+h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(1.5rem,3vw,2rem);font-weight:700}
+h3{font-size:1.15rem;font-weight:700}
+p{margin:0}
+.eyebrow{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+.proto{display:inline-flex;gap:8px;align-items:center;font-size:.8rem;font-weight:600;color:var(--amber);background:var(--amber-soft);padding:4px 10px;border-radius:999px}
+a{color:var(--blue)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+
+/* Cabecera */
+header{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:40px;align-items:end}
+header .lead{font-size:1.1rem;color:var(--muted);max-width:60ch;margin-top:14px}
+.rule{display:flex;flex-direction:column;gap:0;border-left:3px solid var(--accent);padding-left:18px}
+.rule li{list-style:none;display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--line)}
+.rule li:last-child{border-bottom:0}
+.rule b{font-family:var(--mono);font-size:1.5rem;color:var(--accent)}
+.rule ul{margin:0;padding:0}
+
+/* Resumen */
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.summary div{background:var(--surface);padding:18px 20px;display:flex;flex-direction:column;gap:2px}
+.summary b{font-family:var(--mono);font-size:1.9rem;font-variant-numeric:tabular-nums}
+.summary span{font-size:.88rem;color:var(--muted)}
+
+/* Controles */
+.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field label{font-size:.82rem;font-weight:600}
+.field input,.field select,.field textarea{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-height:44px;width:100%}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:.85rem;color:var(--muted);margin-left:auto}
+.legend i{display:inline-block;width:14px;height:14px;border-radius:3px;vertical-align:-2px;margin-right:6px}
+
+/* Comarcas */
+.comarcas{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+.comarca{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.comarca-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.comarca-state{font-size:.82rem;color:var(--muted)}
+.cbar{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+.cbar span{height:8px;border-radius:2px;background:var(--empty)}
+.cbar span.on{background:var(--blue)}
+.munis{display:flex;flex-direction:column}
+.muni{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:9px 6px;border:0;border-top:1px solid var(--line);background:none;text-align:left;cursor:pointer;border-radius:0;width:100%}
+.muni:hover{background:var(--accent-soft)}
+.muni[aria-pressed="true"]{background:var(--accent-soft)}
+.muni-name{font-weight:500;overflow-wrap:anywhere}
+.slots{display:flex;gap:3px}
+.slots span{width:16px;height:16px;border-radius:3px;background:var(--empty)}
+.slots span.ok{background:var(--accent)}
+.slots span.rev{background:repeating-linear-gradient(45deg,var(--amber) 0 3px,var(--amber-soft) 3px 6px)}
+.tag{font-size:.72rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.tag.red{background:var(--blue-soft);color:var(--blue)}
+.tag.ready{background:var(--accent-soft);color:var(--accent)}
+.tag.none{color:var(--muted)}
+
+/* Ficha */
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}
+.ficha{position:sticky;top:calc(env(safe-area-inset-top, 0px) + 16px);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:22px;display:flex;flex-direction:column;gap:14px}
+.ficha .big{font-family:var(--mono);font-size:2.6rem;line-height:1}
+.ficha ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.ficha li{display:flex;flex-direction:column;padding:10px 12px;border-radius:8px;background:var(--bg)}
+.ficha li small{color:var(--muted)}
+.next{padding:12px 14px;border-radius:8px;background:var(--accent-soft);color:var(--ink);font-weight:500}
+.btn{display:inline-flex;justify-content:center;align-items:center;min-height:44px;padding:10px 18px;border-radius:8px;border:0;background:var(--accent);color:var(--surface);font-weight:600;cursor:pointer;text-decoration:none}
+.btn.ghost{background:none;color:var(--accent);border:1px solid var(--accent)}
+
+/* Proceso */
+.fases{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;counter-reset:f}
+.fase{border-top:3px solid var(--ink);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.fase .eyebrow{color:var(--accent)}
+.fase p{color:var(--muted);font-size:.95rem}
+
+/* Directorio */
+.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+tbody tr:last-child td{border-bottom:0}
+td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* Formulario */
+.alta{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:40px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px}
+.alta aside{display:flex;flex-direction:column;gap:14px;color:var(--muted)}
+.alta aside ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px}
+form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+form .full{grid-column:1/-1}
+.check{display:flex;gap:10px;align-items:flex-start;font-size:.9rem}
+.check input{width:20px;height:20px;margin-top:2px;flex:none}
+.done{grid-column:1/-1;padding:14px 16px;border-radius:8px;background:var(--accent-soft)}
+.anexos{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin:0;padding:0;list-style:none}
+.anexos li{display:flex;gap:12px;align-items:baseline;padding:12px 14px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.anexos b{font-family:var(--mono);color:var(--accent)}
+footer{font-size:.85rem;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+
+@media (max-width:900px){
+  header,.layout,.alta{grid-template-columns:minmax(0,1fr)}
+  .ficha{position:static}
+  .fases,.summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:520px){
+  form{grid-template-columns:minmax(0,1fr)}
+  .comarcas{grid-template-columns:minmax(0,1fr)}
+  .legend{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <span class="proto">Prototipo con datos de ejemplo · no oficial</span>
+      <h1 style="margin-top:14px">Mapa de la RIEC</h1>
+      <p class="lead">Consulta en qué municipio y comarca de Tenerife hay entidades ciudadanas adheridas a la Red Insular de Entidades Ciudadanas, cuántas faltan para formar cada red y cómo inscribir la tuya.</p>
+    </div>
+    <ul class="rule" aria-label="Cómo se sube de nivel">
+      <li><b>3</b><span><strong>entidades validadas</strong> de un mismo municipio forman una Red Municipal, que nombra 2 portavoces.</span></li>
+      <li><b>3</b><span><strong>redes municipales</strong> de una comarca forman una Red Comarcal, que nombra 4 portavoces.</span></li>
+      <li><b>5</b><span><strong>redes comarcales</strong> envían sus portavoces al Grupo Motor, que acuerda el plan de trabajo cada octubre.</span></li>
+    </ul>
+  </header>
+
+  <section aria-label="Resumen de la isla" class="summary" id="summary"></section>
+
+  <section style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">Estado por comarca</span>
+      <h2>¿Cuánto le falta a tu municipio?</h2>
+    </div>
+    <div class="controls">
+      <div class="field" style="flex:1 1 220px">
+        <label for="q">Buscar municipio</label>
+        <input id="q" type="search" placeholder="Ej.: Güímar">
+      </div>
+      <div class="field" style="flex:0 1 220px">
+        <label for="fc">Comarca</label>
+        <select id="fc"><option value="">Todas</option></select>
+      </div>
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--accent)"></i>Validada</span>
+        <span><i style="background:repeating-linear-gradient(45deg,var(--amber) 0 3px,var(--amber-soft) 3px 6px)"></i>En revisión</span>
+        <span><i style="background:var(--empty)"></i>Plaza libre</span>
+      </div>
+    </div>
+    <div class="layout">
+      <div class="comarcas" id="comarcas"></div>
+      <aside class="ficha" id="ficha" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span class="eyebrow">Cómo funciona</span>
+      <h2>Cuatro fases, cada año</h2>
+    </div>
+    <div class="fases">
+      <div class="fase"><span class="eyebrow">Fase 1</span><h3>Adhesión</h3><p>La entidad se inscribe y entrega el Documento de Adhesión. Tras validarla, aparece en este mapa.</p></div>
+      <div class="fase"><span class="eyebrow">Fase 2</span><h3>Constitución de redes</h3><p>Primero las redes municipales, con al menos 3 entidades; después las comarcales, con al menos 3 redes municipales.</p></div>
+      <div class="fase"><span class="eyebrow">Fase 3</span><h3>Recoger, priorizar, acordar</h3><p>Las redes municipales recogen propuestas, las comarcales priorizan 3 y el Grupo Motor acuerda el plan en octubre.</p></div>
+      <div class="fase"><span class="eyebrow">Fase 4</span><h3>Devolución</h3><p>Los acuerdos bajan a las redes comarcales, a las municipales y a cada entidad. Seguimiento en febrero y mayo.</p></div>
+    </div>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap">
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <span class="eyebrow">Directorio</span>
+        <h2>Entidades validadas</h2>
+      </div>
+      <span class="comarca-state" id="updated"></span>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>Entidad</th><th>Municipio</th><th>Comarca</th><th>Ámbito</th><th>Validada</th></tr></thead>
+        <tbody id="dir"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="alta" id="alta">
+    <aside>
+      <span class="eyebrow">Inscripción</span>
+      <h2 style="color:var(--ink)">Inscribe tu entidad</h2>
+      <p>Rellena el formulario y adjunta la documentación. La recibimos en nuestra bandeja de atención y te respondemos por email o WhatsApp con cada paso.</p>
+      <ol>
+        <li>Recibes un acuse con tu número de solicitud.</li>
+        <li>Revisamos la documentación y te pedimos lo que falte.</li>
+        <li>Cuando se valida, tu entidad aparece en el mapa.</li>
+      </ol>
+      <p style="font-size:.85rem">Solo publicamos el nombre, el municipio y el ámbito. El resto de datos y los documentos no se publican.</p>
+    </aside>
+    <form id="form" novalidate>
+      <div class="field full"><label for="f-nombre">Nombre de la entidad</label><input id="f-nombre" required autocomplete="organization"></div>
+      <div class="field"><label for="f-cif">CIF</label><input id="f-cif" required placeholder="G00000000"></div>
+      <div class="field"><label for="f-muni">Municipio de la sede</label><select id="f-muni" required><option value="">Elige municipio</option></select></div>
+      <div class="field"><label for="f-ambito">Ámbito de actuación</label>
+        <select id="f-ambito" required><option value="">Elige ámbito</option><option>Vecinal</option><option>Cultural</option><option>Sociocultural</option><option>Juvenil</option><option>Mayores</option><option>Educación / AMPA</option><option>Deportivo</option><option>Medio ambiente</option><option>Discapacidad</option><option>Otro</option></select></div>
+      <div class="field"><label for="f-persona">Persona de contacto</label><input id="f-persona" required autocomplete="name"></div>
+      <div class="field"><label for="f-email">Email</label><input id="f-email" type="email" required autocomplete="email"></div>
+      <div class="field"><label for="f-tel">Teléfono / WhatsApp</label><input id="f-tel" type="tel" autocomplete="tel"></div>
+      <div class="field full"><label for="f-docs">Documento de Adhesión (Anexo 1) y estatutos</label><input id="f-docs" type="file" multiple accept=".pdf,.jpg,.jpeg,.png"></div>
+      <label class="check full" for="f-rgpd"><input id="f-rgpd" type="checkbox" required><span>Acepto que se traten estos datos para gestionar la adhesión a la RIEC y que se publiquen el nombre, el municipio y el ámbito de la entidad.</span></label>
+      <div class="full" style="display:flex;gap:12px;flex-wrap:wrap"><button class="btn" type="submit">Enviar solicitud</button></div>
+      <p class="done" id="done" hidden></p>
+    </form>
+  </section>
+
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Documentación</span>
+    <h2>Anexos de la RIEC</h2>
+    <ul class="anexos">
+      <li><b>01</b><span>Documento de Adhesión</span></li>
+      <li><b>02</b><span>Acreditación de portavoces I (entidad → red municipal)</span></li>
+      <li><b>03</b><span>Acta de constitución de red</span></li>
+      <li><b>04</b><span>Acreditación de portavoces II (red → red comarcal / Grupo Motor)</span></li>
+      <li><b>05</b><span>Registro de reuniones de las redes</span></li>
+      <li><b>06</b><span>Registro de reuniones del Grupo Motor / Comisiones</span></li>
+    </ul>
+  </section>
+
+  <footer>Prototipo elaborado a partir de las presentaciones del Encuentro RIEC (31/10/2026). Los nombres de entidades y los estados son datos de ejemplo. La adhesión oficial se gestiona con Tenerife Participa (Cabildo de Tenerife).</footer>
+</div>
+
+<script>
+(function(){
+  var NEEDED = 3;
+  var state = { data:null, sel:"Güímar", q:"", comarca:"" };
+  var $ = function(id){ return document.getElementById(id); };
+  var esc = function(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); };
+  var fmt = function(d){ var p=d.split("-"); return p[2]+"/"+p[1]+"/"+p[0]; };
+
+  function model(){
+    var d = state.data, redes = {}, out = {};
+    d.redesMunicipales.forEach(function(r){ redes[r.municipio]=r; });
+    d.comarcas.forEach(function(c){
+      c.municipios.forEach(function(m){
+        var ents = d.entidades.filter(function(e){ return e.municipio===m; });
+        out[m] = { comarca:c, ok:ents.filter(function(e){return e.estado==="validada";}),
+                   rev:ents.filter(function(e){return e.estado==="revision";}).length, red:redes[m]||null };
+      });
+    });
+    return out;
+  }
+
+  function muniStatus(s){
+    if (s.red) return '<span class="tag red">Red constituida</span>';
+    if (s.ok.length>=NEEDED) return '<span class="tag ready">Puede constituirse</span>';
+    return '<span class="tag none">Faltan '+(NEEDED-s.ok.length)+'</span>';
+  }
+  function slots(s){
+    var h=""; for (var i=0;i<NEEDED;i++){
+      h += '<span class="'+(i<s.ok.length?"ok":(i<s.ok.length+s.rev?"rev":""))+'"></span>';
+    } return '<span class="slots" aria-hidden="true">'+h+'</span>';
+  }
+
+  function render(){
+    var d=state.data, M=model();
+    var val=d.entidades.filter(function(e){return e.estado==="validada";}).length;
+    var redesM=d.redesMunicipales.length;
+    var comarcalesListas=d.comarcas.filter(function(c){ return c.municipios.filter(function(m){return M[m].red;}).length>=NEEDED; }).length;
+    $("summary").innerHTML =
+      '<div><b>'+val+'</b><span>entidades validadas</span></div>'+
+      '<div><b>'+redesM+'<small style="font-size:1rem;color:var(--muted)"> / 31</small></b><span>redes municipales constituidas</span></div>'+
+      '<div><b>'+d.redesComarcales.length+'<small style="font-size:1rem;color:var(--muted)"> / 5</small></b><span>redes comarcales constituidas</span></div>'+
+      '<div><b>'+comarcalesListas+'</b><span>comarcas con 3 redes municipales listas</span></div>';
+    $("updated").textContent = "Datos actualizados el "+fmt(d.actualizado);
+
+    var q=state.q.trim().toLowerCase(), html="";
+    d.comarcas.forEach(function(c){
+      if (state.comarca && state.comarca!==c.id) return;
+      var munis=c.municipios.filter(function(m){ return !q || m.toLowerCase().indexOf(q)>-1; });
+      if (!munis.length) return;
+      var nRed=c.municipios.filter(function(m){return M[m].red;}).length, bar="";
+      for (var i=0;i<NEEDED;i++) bar+='<span class="'+(i<nRed?"on":"")+'"></span>';
+      html += '<article class="comarca"><div class="comarca-head"><h3>Comarca '+esc(c.nombre)+'</h3>'+
+        '<span class="comarca-state">'+nRed+' de '+NEEDED+' redes municipales</span></div>'+
+        '<div class="cbar" aria-hidden="true">'+bar+'</div><div class="munis">'+
+        munis.map(function(m){ var s=M[m];
+          return '<button type="button" class="muni" data-m="'+esc(m)+'" aria-pressed="'+(state.sel===m)+'">'+
+            '<span class="muni-name">'+esc(m)+'</span>'+slots(s)+muniStatus(s)+'</button>'; }).join("")+
+        '</div></article>';
+    });
+    $("comarcas").innerHTML = html || '<p style="color:var(--muted)">Ningún municipio coincide con la búsqueda.</p>';
+
+    renderFicha(M);
+
+    var rows=d.entidades.filter(function(e){return e.estado==="validada";})
+      .sort(function(a,b){ return a.municipio.localeCompare(b.municipio,"es") || a.nombre.localeCompare(b.nombre,"es"); });
+    $("dir").innerHTML = rows.map(function(e){
+      return '<tr><td>'+esc(e.nombre)+'</td><td>'+esc(e.municipio)+'</td><td>'+esc(M[e.municipio].comarca.nombre)+'</td><td>'+esc(e.ambito)+'</td><td class="num">'+fmt(e.fecha)+'</td></tr>';
+    }).join("");
+  }
+
+  function renderFicha(M){
+    var m=state.sel, s=M[m]; if(!s) return;
+    var c=s.comarca, redesC=c.municipios.filter(function(x){return M[x].red;}).length, next;
+    if (s.red) next = redesC>=NEEDED ? "La comarca "+c.nombre+" ya puede constituir su Red Comarcal." :
+      "Red municipal en marcha. A la comarca "+c.nombre+" le faltan "+(NEEDED-redesC)+" redes municipales para formar la Red Comarcal.";
+    else if (s.ok.length>=NEEDED) next = "Ya hay 3 entidades validadas: podéis constituir la Red Municipal (Anexo 3) y nombrar 2 portavoces (Anexo 4).";
+    else next = "Falta"+(NEEDED-s.ok.length>1?"n ":" ")+(NEEDED-s.ok.length)+" entidad"+(NEEDED-s.ok.length>1?"es":"")+" validada"+(NEEDED-s.ok.length>1?"s":"")+" para constituir la Red Municipal de "+m+".";
+    $("ficha").innerHTML =
+      '<span class="eyebrow">Comarca '+esc(c.nombre)+'</span><h3 style="font-size:1.6rem">'+esc(m)+'</h3>'+
+      '<div style="display:flex;align-items:end;gap:12px"><span class="big">'+s.ok.length+'<span style="font-size:1.2rem;color:var(--muted)"> / '+NEEDED+'</span></span>'+
+      '<span style="color:var(--muted);padding-bottom:4px">entidades validadas'+(s.rev?' · '+s.rev+' en revisión':'')+'</span></div>'+
+      '<p class="next">'+next+'</p>'+
+      (s.ok.length ? '<ul>'+s.ok.map(function(e){return '<li><strong>'+esc(e.nombre)+'</strong><small>'+esc(e.ambito)+' · validada el '+fmt(e.fecha)+'</small></li>';}).join("")+'</ul>' :
+        '<p style="color:var(--muted)">Todavía no hay entidades validadas en este municipio.</p>')+
+      '<a class="btn" href="#alta">Inscribir una entidad en '+esc(m)+'</a>';
+  }
+
+  function fillSelects(){
+    var d=state.data, fc=$("fc"), fm=$("f-muni");
+    d.comarcas.forEach(function(c){
+      var o=document.createElement("option"); o.value=c.id; o.textContent=c.nombre; fc.appendChild(o);
+      var g=document.createElement("optgroup"); g.label="Comarca "+c.nombre;
+      c.municipios.forEach(function(m){ var x=document.createElement("option"); x.textContent=m; g.appendChild(x); });
+      fm.appendChild(g);
+    });
+  }
+
+  document.addEventListener("click",function(ev){
+    var b=ev.target.closest(".muni"); if(!b) return;
+    state.sel=b.getAttribute("data-m"); render();
+    if (window.matchMedia("(max-width:900px)").matches) $("ficha").scrollIntoView({behavior:"smooth",block:"start"});
+  });
+  document.addEventListener("click",function(ev){
+    var a=ev.target.closest('a[href="#alta"]'); if(!a) return;
+    ev.preventDefault(); $("f-muni").value=state.sel; $("alta").scrollIntoView({behavior:"smooth"}); $("f-nombre").focus({preventScroll:true});
+  });
+  $("q").addEventListener("input",function(e){ state.q=e.target.value; render(); });
+  $("fc").addEventListener("change",function(e){ state.comarca=e.target.value; render(); });
+
+  /* Envío: en producción, CRM_ENDPOINT apunta al formulario o webhook del Chat CRM */
+  var CRM_ENDPOINT = "";
+  $("form").addEventListener("submit",function(ev){
+    ev.preventDefault();
+    var f=ev.target, done=$("done");
+    if (!f.checkValidity()){ done.hidden=false; done.textContent="Revisa los campos obligatorios: nombre, CIF, municipio, ámbito, persona de contacto, email y la casilla de protección de datos."; return; }
+    var ref="RIEC-"+Date.now().toString(36).toUpperCase().slice(-6);
+    done.hidden=false;
+    done.textContent = CRM_ENDPOINT
+      ? "Solicitud "+ref+" enviada. Te escribiremos a "+$("f-email").value+" con los siguientes pasos."
+      : "Prototipo: la solicitud "+ref+" no se ha enviado. En la versión real llegaría a la bandeja del Chat CRM con los documentos adjuntos.";
+  });
+
+  fetch("data/entidades.json",{cache:"no-store"}).then(function(r){ if(!r.ok) throw 0; return r.json(); })
+    .then(function(d){ state.data=d; fillSelects(); render(); })
+    .catch(function(){ $("comarcas").innerHTML='<p>No se han podido cargar los datos (data/entidades.json). Si abres el archivo en local, usa un servidor web.</p>'; });
+})();
+</script>
+
+</body>
+</html>
